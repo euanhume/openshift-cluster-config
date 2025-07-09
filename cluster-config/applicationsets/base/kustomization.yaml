@@ -3,5 +3,4 @@ kind: Kustomization
 
 resources:
 - cluster-config.yaml
-- cluster-instances.yaml
 - ../tenants/
