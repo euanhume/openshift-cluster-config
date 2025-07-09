@@ -9,7 +9,7 @@ spec:
       repoURL: https://github.com/euanhume/openshift-cluster-config
       revision: main
       directories:
-      - path: manifests/*
+      - path: manifests/*/operator/base
   template:
     metadata:
       name: '{{path.basename}}'
