@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: team-beta
+  namespace: openshift-gitops
+spec:
+  sourceRepos:
+  - 'https://github.com/team-beta/microservices'
+  
+  destinations:
+  - namespace: 'beta-*'
+    server: https://kubernetes.default.svc
+  
+  clusterResourceWhitelist:
+  - group: ''
+    kind: Namespace
+  
+  namespaceResourceWhitelist:
+  - group: ''
+    kind: 'ConfigMap'
+  - group: ''
+    kind: 'Secret'
+  - group: ''
+    kind: 'Service'
+  - group: 'apps'
+    kind: 'Deployment'
+  - group: 'route.openshift.io'
+    kind: 'Route'
+  
+  roles:
+  - name: admin
+    policies:
+    - p, proj:team-beta:admin, applications, *, team-beta/*, allow
+    groups:
+    - team-beta-admins 

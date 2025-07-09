@@ -1,0 +1,44 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: team-alpha-matrix
+  namespace: openshift-gitops
+spec:
+  generators:
+  - matrix:
+      generators:
+      - list:
+          elements:
+          - app: frontend
+          - app: backend
+          - app: database
+      - list:
+          elements:
+          - environment: dev
+            cluster: https://kubernetes.default.svc
+          - environment: stg
+            cluster: https://kubernetes.default.svc
+          - environment: prd
+            cluster: https://kubernetes.default.svc
+  template:
+    metadata:
+      name: 'team-alpha-{{app}}-{{environment}}'
+      labels:
+        app: '{{app}}'
+        environment: '{{environment}}'
+        tenant: team-alpha
+    spec:
+      project: team-alpha
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+        - CreateNamespace=true
+      source:
+        repoURL: https://github.com/team-alpha/applications
+        targetRevision: main
+        path: 'apps/{{app}}/{{environment}}'
+      destination:
+        server: '{{cluster}}'
+        namespace: 'team-alpha-{{environment}}' 

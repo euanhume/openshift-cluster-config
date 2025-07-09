@@ -1,0 +1,63 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: team-alpha
+  namespace: openshift-gitops
+spec:
+  # Git repos this team can deploy from
+  sourceRepos:
+  - 'https://github.com/team-alpha/applications'
+  - 'https://github.com/euanhume/openshift-cluster-config'
+  
+  # Namespaces this team can deploy to
+  destinations:
+  - namespace: 'team-alpha-*'
+    server: https://kubernetes.default.svc
+  - namespace: 'team-alpha-dev'
+    server: https://kubernetes.default.svc
+  - namespace: 'team-alpha-stg'
+    server: https://kubernetes.default.svc
+  - namespace: 'team-alpha-prd'
+    server: https://kubernetes.default.svc
+  
+  # Cluster-wide resources this team can create (minimal)
+  clusterResourceWhitelist:
+  - group: ''
+    kind: Namespace
+  
+  # Namespace-scoped resources this team can create
+  namespaceResourceWhitelist:
+  - group: ''
+    kind: 'ConfigMap'
+  - group: ''
+    kind: 'Secret'
+  - group: ''
+    kind: 'Service'
+  - group: ''
+    kind: 'ServiceAccount'
+  - group: 'apps'
+    kind: 'Deployment'
+  - group: 'apps'
+    kind: 'ReplicaSet'
+  - group: 'apps'
+    kind: 'StatefulSet'
+  - group: 'route.openshift.io'
+    kind: 'Route'
+  
+  # RBAC - Who can manage this project
+  roles:
+  - name: admin
+    description: Admin access to team-alpha project
+    policies:
+    - p, proj:team-alpha:admin, applications, *, team-alpha/*, allow
+    - p, proj:team-alpha:admin, repositories, *, *, allow
+    groups:
+    - team-alpha-admins
+  
+  - name: developer
+    description: Developer access to team-alpha project
+    policies:
+    - p, proj:team-alpha:developer, applications, get, team-alpha/*, allow
+    - p, proj:team-alpha:developer, applications, sync, team-alpha/*, allow
+    groups:
+    - team-alpha-developers 

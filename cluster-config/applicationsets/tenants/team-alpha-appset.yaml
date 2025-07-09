@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: team-alpha-apps
+  namespace: openshift-gitops
+spec:
+  generators:
+  - list:
+      elements:
+      - environment: dev
+        path: environments/dev
+        namespace: team-alpha-dev
+      - environment: stg
+        path: environments/stg
+        namespace: team-alpha-stg
+      - environment: prd
+        path: environments/prd
+        namespace: team-alpha-prd
+  template:
+    metadata:
+      name: 'team-alpha-{{environment}}'
+      labels:
+        environment: '{{environment}}'
+        tenant: team-alpha
+    spec:
+      project: team-alpha
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+        - CreateNamespace=true  # This creates the namespace!
+      source:
+        repoURL: https://github.com/team-alpha/applications
+        targetRevision: main
+        path: '{{path}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{namespace}}' 
