@@ -12,13 +12,20 @@ spec:
       - path: manifests/*/operator/base
   template:
     metadata:
-      name: '{{path.basename}}'
+      name: '{{path[1]}}-operator'
+      labels:
+        app.kubernetes.io/managed-by: cluster-config-appset
+        component: operator
     spec:
       project: cluster-config
       syncPolicy:
         automated:
           prune: true
           selfHeal: true
+        syncOptions:
+        - CreateNamespace=true
+        - PrunePropagationPolicy=foreground
+        - PruneLast=true
       source:
         repoURL: https://github.com/euanhume/openshift-cluster-config
         targetRevision: main
